@@ -1,0 +1,1 @@
+# Hadoop-as-a-Service-Blueprint---Singel-Node
