@@ -1,0 +1,68 @@
+id: Hadoop
+name: Hadoop
+description: Deploy Hadoop 2.7.0 on vSphere
+status: PUBLISHED
+components:
+  Hadoop-Master_Installer:
+    type: Software.HadoopMaster
+    data:
+      host: ${_resource~Master}
+  Master:
+    type: Infrastructure.CatalogItem.Machine.Virtual.vSphere
+    data:
+      _cluster:
+        fixed: 1
+        min: 1
+      action:
+        fixed: LinkedClone
+      allow_storage_policies:
+        fixed: false
+      blueprint_type:
+        fixed: '1'
+      cpu:
+        fixed: 1
+        min: 1
+      disks:
+      - capacity: 16
+        custom_properties: null
+        id: 1458855183781
+        initial_location: ''
+        is_clone: true
+        label: Hard disk 1
+        storage_reservation_policy: ''
+        userCreated: false
+        volumeId: 0
+      display_location:
+        fixed: false
+      guest_customization_specification: Linux
+      machine_prefix:
+        fixed:
+          id: Use group default
+      max_network_adapters: {}
+      max_volumes: {}
+      memory:
+        fixed: 2048
+        min: 2048
+      provisioning_workflow:
+        fixed:
+          id: CloneWorkflow
+          label: CloneWorkflow
+      security_groups: []
+      security_tags: []
+      source_machine:
+        fixed:
+          id: 93dc1859-8843-49bb-8e81-323846c584ea
+          label: CentOS7
+      source_machine_external_snapshot:
+        fixed: 6
+      source_machine_name:
+        fixed: CentOS7
+      source_machine_vmsnapshot:
+        fixed:
+          id: '18'
+      storage:
+        fixed: 16
+        min: 16
+layout:
+  Hadoop-Master_Installer: 0,0
+  Master: 0,0

@@ -1,0 +1,12 @@
+name: "auto-generated-pkg-5c4b12a8-b391-4892-9f70-88ed1f87ce2e"
+productVersion: "7.0.0-SNAPSHOT"
+data:
+- locator: "composite-blueprint/Hadoop.yaml"
+  name: "Hadoop"
+  description: "Hadoop"
+  dependencies:
+  - "software-component/Software.HadoopMaster.yaml"
+- locator: "software-component/Software.HadoopMaster.yaml"
+  name: "Hadoop-Master"
+  description: "Installs Hadoop on Master instance"
+exportTime: "2016-03-30T21:12:05.777Z"

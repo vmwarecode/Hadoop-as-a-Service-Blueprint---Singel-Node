@@ -1,0 +1,129 @@
+'@type': "SoftwareComponentType"
+createdDate: "2016-03-28T18:05:40.713Z"
+lastUpdated: "2016-03-30T18:41:28.201Z"
+id: "Software.HadoopMaster"
+name: "Hadoop-Master"
+description: "Installs Hadoop on Master instance"
+publishStatus: "PUBLISHED"
+publishStatusName: "Published"
+schema:
+  fields:
+  - id: "Hadoop_Manager_URL"
+    label: "Hadoop_Manager_URL"
+    description: ""
+    dataType:
+      type: "primitive"
+      typeId: "STRING"
+    state:
+      dependencies: []
+      facets:
+      - type: "derivedValue"
+        value:
+          type: "constant"
+      - type: "editable"
+        value:
+          type: "constant"
+          value:
+            type: "boolean"
+            value: false
+    isMultiValued: false
+  - id: "NodeInfo_URL"
+    label: "NodeInfo_URL"
+    description: ""
+    dataType:
+      type: "primitive"
+      typeId: "STRING"
+    state:
+      dependencies: []
+      facets:
+      - type: "derivedValue"
+        value:
+          type: "constant"
+      - type: "editable"
+        value:
+          type: "constant"
+          value:
+            type: "boolean"
+            value: false
+    isMultiValued: false
+  - id: "host"
+    label: "Container"
+    description: ""
+    dataType:
+      type: "ref"
+      componentTypeId: "com.vmware.csp.iaas.blueprint.service"
+      classId: "Infrastructure.Machine.Schema"
+      label: "Machine"
+    state:
+      dependencies: []
+      facets:
+      - type: "mandatory"
+        value:
+          type: "constant"
+          value:
+            type: "boolean"
+            value: true
+      - type: "visible"
+        value:
+          type: "constantClause"
+          value:
+            type: "boolean"
+            value: false
+    isMultiValued: false
+containerFieldId: "host"
+lifecycleTasks:
+- createdDate: "2016-03-28T18:05:40.742Z"
+  lastUpdated: "2016-03-30T18:41:28.201Z"
+  script:
+    scriptContent: "#!/bin/bash\ncd ~\nyum -y install wget\nyum -y install java-1.7.0-openjdk\n\
+      ssh-keygen -t dsa -P '' -f ~/.ssh/id_dsa\ncat ~/.ssh/id_dsa.pub >> ~/.ssh/authorized_keys\n\
+      chmod 0600 ~/.ssh/authorized_keys\ncd /tmp\nwget http://apache.claz.org/hadoop/common/hadoop-2.7.0/hadoop-2.7.0.tar.gz\n\
+      tar xzf hadoop-2.7.0.tar.gz\nmv hadoop-2.7.0 /opt\n"
+    isRebootAfter: false
+    scriptTypeId: "Bash"
+  taskDescriptorRef:
+    id: "INSTALL"
+    label: "Install"
+- createdDate: "2016-03-28T18:05:40.742Z"
+  lastUpdated: "2016-03-30T18:41:28.201Z"
+  script:
+    scriptContent: "#!/bin/bash\necho -e 'export JAVA_HOME=/usr/lib/jvm/jre\\nexport\
+      \ HADOOP_HOME=/opt/hadoop-2.7.0\\nexport HADOOP_INSTALL=$HADOOP_HOME\\nexport\
+      \ HADOOP_MAPRED_HOME=$HADOOP_HOME\\nexport HADOOP_COMMON_HOME=$HADOOP_HOME\\\
+      nexport HADOOP_HDFS_HOME=$HADOOP_HOME\\nexport HADOOP_YARN_HOME=$HADOOP_HOME\\\
+      nexport HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native\\nexport PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin\\\
+      nexport JAVA_LIBRARY_PATH=$HADOOP_HOME/lib/native:$JAVA_LIBRARY_PATH' >> $HOME/.bashrc\n\
+      source $HOME/.bashrc\nrm -f $HADOOP_HOME/etc/hadoop/core-site.xml\necho -e \"\
+      <configuration>\\n<property>\\n  <name>fs.default.name</name>\\n    <value>hdfs://localhost:9000</value>\\\
+      n</property>\\n</configuration>\\n\" >> $HADOOP_HOME/etc/hadoop/core-site.xml\n\
+      rm -f $HADOOP_HOME/etc/hadoop/hdfs-site.xml\necho -e \"<configuration>\\n<property>\\\
+      n <name>dfs.replication</name>\\n <value>1</value>\\n</property>\\n \\n<property>\\\
+      n  <name>dfs.name.dir</name>\\n    <value>file:///home/hadoop/hadoopdata/hdfs/namenode</value>\\\
+      n</property>\\n\\n<property>\\n  <name>dfs.data.dir</name>\\n    <value>file:///home/hadoop/hadoopdata/hdfs/datanode</value>\\\
+      n</property>\\n</configuration>\" >> $HADOOP_HOME/etc/hadoop/hdfs-site.xml\n\
+      cp $HADOOP_HOME/etc/hadoop/mapred-site.xml.template $HADOOP_HOME/etc/hadoop/mapred-site.xml\n\
+      rm -f $HADOOP_HOME/etc/hadoop/mapred-site.xml\necho -e \"<configuration>\\n<property>\\\
+      n  <name>mapreduce.framework.name</name>\\n   <value>yarn</value>\\n</property>\\\
+      n</configuration>\" >> $HADOOP_HOME/etc/hadoop/mapred-site.xml\nrm -f $HADOOP_HOME/etc/hadoop/yarn-site.xml\n\
+      echo -e \"<configuration>\\n<property>\\n  <name>yarn.nodemanager.aux-services</name>\\\
+      n    <value>mapreduce_shuffle</value>\\n</property>\\n</configuration>\" >>\
+      \ $HADOOP_HOME/etc/hadoop/yarn-site.xml\necho -e \"export JAVA_HOME=/usr/lib/jvm/jre\"\
+      \ >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh"
+    isRebootAfter: false
+    scriptTypeId: "Bash"
+  taskDescriptorRef:
+    id: "CONFIGURE"
+    label: "Configure"
+- createdDate: "2016-03-28T18:05:40.743Z"
+  lastUpdated: "2016-03-30T18:41:28.201Z"
+  script:
+    scriptContent: "#!/bin/bash\ncd $HOME\nsource $HOME/.bashrc\nssh -o \"StrictHostKeyChecking\
+      \ no\" 0.0.0.0 exit\nssh -o \"StrictHostKeyChecking no\" localhost exit\nhdfs\
+      \ namenode -format\nstart-dfs.sh\nstart-yarn.sh\n#Get My IP adress and store\
+      \ as variable\nmy_ip=$(hostname  -I | cut -f1 -d' ')\necho my IP address is\
+      \ $my_ip\nNodeInfo_URLNODE_URL=http://$my_ip:50070\nHadoop_Manager_URL=http://$my_ip:8088"
+    isRebootAfter: false
+    scriptTypeId: "Bash"
+  taskDescriptorRef:
+    id: "START"
+    label: "Start"
